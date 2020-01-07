@@ -12,31 +12,37 @@ public class ObjectDisplayControl : MonoBehaviour
     private UdpClient receiver;
     private int RECEIVE_PORT = 25000;
     private string SEND_HOST = "127.0.0.1";
-
+	/*
     private UdpClient sender;
     private int SEND_PORT = 25001;
 	private int command = 0;
 	private int testCommand = 0;
-    GameObject[] dispObj = new GameObject[2][2];
+	*/
+    public GameObject[,] dispObj = new GameObject[2,2];
 	
-	private unsigned double elapsedTime = 0;
-
-    private Animator animator;
+	public AudioClip announceRight;
+	public AudioClip announceLeft;
+	AudioSource audioSource;
+	
+	private double elapsedTime = 0;
+	private int testCommand = 0;
 
 	// Use this for initialization
 	void Start () {
         receiver = new UdpClient(RECEIVE_PORT);
         receiver.Client.ReceiveTimeout = 1000;
-
+		
+		/*
         sender = new UdpClient();
         sender.Connect(SEND_HOST, SEND_PORT);
-		int i = 0,j = 0;
-
+		audioSource = GetComponent<AudioSource>();
+		*/
+		
         //object initialize. fetch object
-        dispObj[0][0] = GameObject.Find("BallL");
-        dispObj[0][1] = GameObject.Find("BallR");
-        dispObj[1][0] = GameObject.Find("StickL");
-        dispObj[1][1] = GameObject.Find("StickR");
+        dispObj[0,0] = GameObject.Find("BallL");
+        dispObj[0,1] = GameObject.Find("BallR");
+        dispObj[1,0] = GameObject.Find("StickL");
+        dispObj[1,1] = GameObject.Find("StickR");
 		//, and display none
 		SetDisplayNone();
 	}
@@ -44,11 +50,10 @@ public class ObjectDisplayControl : MonoBehaviour
 	// Update is called once per frame
     void Update()
     {
+		int command = 0;
 		elapsedTime += Time.deltaTime; //経過時間
 		//command = GetUDPCommand();
-		command = GetTestCommand();
-		
-        
+		command = CreateTestCommand();
 	}
 	int GetUDPCommand() {
         IPEndPoint remoteEP = null;
@@ -61,11 +66,12 @@ public class ObjectDisplayControl : MonoBehaviour
         //Debug.Log(BitConverter.ToInt32(data, 0));
         //receiveData = BitConverter.ToInt32(data, 0);
         //Debug.Log(data);
-		command = cast(BitConverter.ToDouble(data, 0),'int');
+		command = (int)BitConverter.ToDouble(data, 0);
 		return command;
 	}
 	
-	int GetTestCommand() {
+	int CreateTestCommand() {
+		int command = 0;
 		int preDisplayTime = 3;
 		int displayTime    = 5;
 		int nonDisplayTime = 2;
@@ -77,14 +83,14 @@ public class ObjectDisplayControl : MonoBehaviour
 		{
 			command = testCommand;
 		} 
-		else if (elapsedTime < (preDisplayTime + displayTime + nonDisplayTime + )) 
+		else if (elapsedTime < (preDisplayTime + displayTime + nonDisplayTime)) 
 		{
 			command = 0;
 		} 
 		else 
 		{ 
 			//reset to next pattern
-			elaplsedTime = 0; //reset pattern period
+			elapsedTime = 0; //reset pattern period
 			testCommand++;    //next pattern
 			if(testCommand == 9) testCommand = 1;
 		}
@@ -94,6 +100,7 @@ public class ObjectDisplayControl : MonoBehaviour
 	
 	int GetKeyCommand() {
 		int command = 0;
+		/*
 		if(Input.Getkey(KeyCode.Q)) {
 		} else if(Input.Getkey(KeyCode.W)) {
 		} else if(Input.Getkey(KeyCode.E)) {
@@ -103,10 +110,12 @@ public class ObjectDisplayControl : MonoBehaviour
 		} else if(Input.Getkey(KeyCode.D)) {
 		} else if(Input.Getkey(KeyCode.F)) {
 		}
+		*/
 		return command;
 	}
 	
-	void SetSingleDisplayPattern(command){
+	/*
+	void SetSingleDisplayPattern(int command){
 		switch (command)
         {
             case 1:
@@ -123,25 +132,36 @@ public class ObjectDisplayControl : MonoBehaviour
                 break;
         }
 	}
+	*/
 	
 
-		
+	void SetDisplayNone() {
+		int i = 0, j = 0;
+		for (i = 0;i < 2;i++) {
+			for (i = 0;i < 2;i++) {
+				dispObj[i,j].SetActive(false);
+			}
+		}
+	}		
 	
-	void SetMultiDisplayPattern(command) {
+	void SetMultiDisplayPattern(int command) {
 		
 		void AnnounceLeftOrRight(char place) {
 			if (place == 'L') {
+				audioSource.PlayOneShot(announceLeft);
 			}
 			if (place == 'R') {
+				audioSource.PlayOneShot(announceRight);
 			}
 		}
 		
 		void SetObjActive(char shape, char place) {
+			int n = 0,k = 0;	
 			if (shape == 'B') n = 0;
 			if (shape == 'S') n = 1;
 			if (place == 'L') k = 0;
 			if (place == 'R') k = 1;
-			dispObj[n][k].setActive(ture);
+			dispObj[n,k].SetActive(true);
 		}
 		
 		SetDisplayNone();
@@ -177,9 +197,10 @@ public class ObjectDisplayControl : MonoBehaviour
 				break;
 			case 0:
 				SetDisplayNone();
+				break;
 			default:
 				SetDisplayNone();
-				break
+				break;
 		}
 	}
 	
