@@ -15,10 +15,11 @@ public class ObjectDisplayControl : MonoBehaviour
 
     private UdpClient sender;
     private int SEND_PORT = 25001;
-    int receiveData = 0;
-    GameObject ball;
-    GameObject stick;
-
+	private int command = 0;
+	private int testCommand = 0;
+    GameObject[] dispObj = new GameObject[2][2];
+	
+	private unsigned double elapsedTime = 0;
 
     private Animator animator;
 
@@ -29,19 +30,30 @@ public class ObjectDisplayControl : MonoBehaviour
 
         sender = new UdpClient();
         sender.Connect(SEND_HOST, SEND_PORT);
+		int i = 0,j = 0;
 
-        //object initialize. fetch object, and display none
-        ball = GameObject.Find("Sphere");
-        stick = GameObject.Find("Cylinder");
-        ball.SetActive(false);
-        stick.SetActive(false);
+        //object initialize. fetch object
+        dispObj[0][0] = GameObject.Find("BallL");
+        dispObj[0][1] = GameObject.Find("BallR");
+        dispObj[1][0] = GameObject.Find("StickL");
+        dispObj[1][1] = GameObject.Find("StickR");
+		//, and display none
+		SetDisplayNone();
 	}
 	
 	// Update is called once per frame
     void Update()
     {
+		elapsedTime += Time.deltaTime; //経過時間
+		//command = GetUDPCommand();
+		command = GetTestCommand();
+		
+        
+	}
+	int GetUDPCommand() {
         IPEndPoint remoteEP = null;
         byte[] data = receiver.Receive(ref remoteEP);
+		int command = 0;
         //Debug.LogFormat("{0},{1},{2},{3},{4},{5},{6},{7}",data[0],data[1],data[2],data[3],data[4],data[5],data[6],data[7]);
         //Debug.Log(BitConverter.ToDouble(data, 0));
 		//Array.Reverse(data);
@@ -49,7 +61,53 @@ public class ObjectDisplayControl : MonoBehaviour
         //Debug.Log(BitConverter.ToInt32(data, 0));
         //receiveData = BitConverter.ToInt32(data, 0);
         //Debug.Log(data);
-        switch (BitConverter.ToDouble(data, 0))
+		command = cast(BitConverter.ToDouble(data, 0),'int');
+		return command;
+	}
+	
+	int GetTestCommand() {
+		int preDisplayTime = 3;
+		int displayTime    = 5;
+		int nonDisplayTime = 2;
+		if(elapsedTime < preDisplayTime) 
+		{
+			command = testCommand * 10;
+		} 
+		else if (elapsedTime < (preDisplayTime + displayTime)) 
+		{
+			command = testCommand;
+		} 
+		else if (elapsedTime < (preDisplayTime + displayTime + nonDisplayTime + )) 
+		{
+			command = 0;
+		} 
+		else 
+		{ 
+			//reset to next pattern
+			elaplsedTime = 0; //reset pattern period
+			testCommand++;    //next pattern
+			if(testCommand == 9) testCommand = 1;
+		}
+		
+		return command;
+	}
+	
+	int GetKeyCommand() {
+		int command = 0;
+		if(Input.Getkey(KeyCode.Q)) {
+		} else if(Input.Getkey(KeyCode.W)) {
+		} else if(Input.Getkey(KeyCode.E)) {
+		} else if(Input.Getkey(KeyCode.R)) {
+		} else if(Input.Getkey(KeyCode.A)) {
+		} else if(Input.Getkey(KeyCode.S)) {
+		} else if(Input.Getkey(KeyCode.D)) {
+		} else if(Input.Getkey(KeyCode.F)) {
+		}
+		return command;
+	}
+	
+	void SetSingleDisplayPattern(command){
+		switch (command)
         {
             case 1:
                 ball.SetActive(true);
@@ -64,6 +122,66 @@ public class ObjectDisplayControl : MonoBehaviour
                 stick.SetActive(false);
                 break;
         }
-        sender.Send(data, data.Length);
 	}
+	
+
+		
+	
+	void SetMultiDisplayPattern(command) {
+		
+		void AnnounceLeftOrRight(char place) {
+			if (place == 'L') {
+			}
+			if (place == 'R') {
+			}
+		}
+		
+		void SetObjActive(char shape, char place) {
+			if (shape == 'B') n = 0;
+			if (shape == 'S') n = 1;
+			if (place == 'L') k = 0;
+			if (place == 'R') k = 1;
+			dispObj[n][k].setActive(ture);
+		}
+		
+		SetDisplayNone();
+		switch(command)
+		{
+			case 10:
+			case 30:
+			case 50:
+			case 70:
+				AnnounceLeftOrRight('L');
+				break;
+			case 20:
+			case 40:
+			case 60:
+			case 80:
+				AnnounceLeftOrRight('R');
+				break;
+			case 1:
+			case 2:
+				SetObjActive('B','L');SetObjActive('B','R');
+				break;
+			case 3:
+			case 4:
+				SetObjActive('B','L');SetObjActive('S','R');
+				break;
+			case 5:
+			case 6:
+				SetObjActive('S','L');SetObjActive('B','R');
+				break;
+			case 7:
+			case 8:
+				SetObjActive('S','L');SetObjActive('S','R');
+				break;
+			case 0:
+				SetDisplayNone();
+			default:
+				SetDisplayNone();
+				break
+		}
+	}
+	
+	
 }
