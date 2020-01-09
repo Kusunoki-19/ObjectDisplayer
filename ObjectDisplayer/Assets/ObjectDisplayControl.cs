@@ -26,6 +26,7 @@ public class ObjectDisplayControl : MonoBehaviour
 	
 	private double elapsedTime = 0;
 	private int testCommand = 0;
+	private int prevCommand = 0;
 
 	// Use this for initialization
 	void Start () {
@@ -35,14 +36,20 @@ public class ObjectDisplayControl : MonoBehaviour
 		/*
         sender = new UdpClient();
         sender.Connect(SEND_HOST, SEND_PORT);
-		audioSource = GetComponent<AudioSource>();
 		*/
+		audioSource = GetComponent<AudioSource>();
 		
         //object initialize. fetch object
         dispObj[0,0] = GameObject.Find("BallL");
         dispObj[0,1] = GameObject.Find("BallR");
         dispObj[1,0] = GameObject.Find("StickL");
         dispObj[1,1] = GameObject.Find("StickR");
+		/*
+		dispObj[0,0].SetActive(false);
+		dispObj[0,1].SetActive(false);
+		dispObj[1,0].SetActive(false);
+		dispObj[1,1].SetActive(false);
+		*/
 		//, and display none
 		SetDisplayNone();
 	}
@@ -54,6 +61,10 @@ public class ObjectDisplayControl : MonoBehaviour
 		elapsedTime += Time.deltaTime; //経過時間
 		//command = GetUDPCommand();
 		command = CreateTestCommand();
+		if (command != prevCommand) {
+			SetMultiDisplayPattern(command);
+		}
+		prevCommand = command;
 	}
 	int GetUDPCommand() {
         IPEndPoint remoteEP = null;
@@ -138,19 +149,21 @@ public class ObjectDisplayControl : MonoBehaviour
 	void SetDisplayNone() {
 		int i = 0, j = 0;
 		for (i = 0;i < 2;i++) {
-			for (i = 0;i < 2;i++) {
+			for (j = 0;j < 2;j++) {
 				dispObj[i,j].SetActive(false);
 			}
 		}
 	}		
 	
 	void SetMultiDisplayPattern(int command) {
-		
+		Debug.Log(command);
 		void AnnounceLeftOrRight(char place) {
 			if (place == 'L') {
+				Debug.Log("左");
 				audioSource.PlayOneShot(announceLeft);
 			}
 			if (place == 'R') {
+				Debug.Log("右");
 				audioSource.PlayOneShot(announceRight);
 			}
 		}
