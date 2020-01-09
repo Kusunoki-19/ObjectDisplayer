@@ -59,8 +59,8 @@ public class ObjectDisplayControl : MonoBehaviour
     {
 		int command = 0;
 		elapsedTime += Time.deltaTime; //経過時間
-		//command = GetUDPCommand();
-		command = CreateTestCommand();
+		command = GetUDPCommand();
+		//command = CreateTestCommand();
 		if (command != prevCommand) {
 			SetMultiDisplayPattern(command);
 		}
@@ -77,7 +77,9 @@ public class ObjectDisplayControl : MonoBehaviour
         //Debug.Log(BitConverter.ToInt32(data, 0));
         //receiveData = BitConverter.ToInt32(data, 0);
         //Debug.Log(data);
-		command = (int)BitConverter.ToDouble(data, 0);
+		
+		//command = (int)BitConverter.ToDouble(data, 0);
+		command = BitConverter.ToInt32(data, 0);
 		return command;
 	}
 	
