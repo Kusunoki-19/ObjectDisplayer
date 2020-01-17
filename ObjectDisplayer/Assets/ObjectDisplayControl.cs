@@ -18,10 +18,12 @@ public class ObjectDisplayControl : MonoBehaviour
 	private int command = 0;
 	private int testCommand = 0;
 	*/
-    public GameObject[,] dispObj = new GameObject[2,2];
+    public GameObject[,] dispObj = new GameObject[2,3];
 	
 	public AudioClip announceRight;
 	public AudioClip announceLeft;
+	public AudioClip announceOpen;
+	public AudioClip announceClose;
 	AudioSource audioSource;
 	
 	private double elapsedTime = 0;
@@ -44,6 +46,9 @@ public class ObjectDisplayControl : MonoBehaviour
         dispObj[0,1] = GameObject.Find("BallR");
         dispObj[1,0] = GameObject.Find("StickL");
         dispObj[1,1] = GameObject.Find("StickR");
+		
+        dispObj[0,2] = GameObject.Find("Ball");
+        dispObj[1,2] = GameObject.Find("Stick");
 		/*
 		dispObj[0,0].SetActive(false);
 		dispObj[0,1].SetActive(false);
@@ -151,7 +156,7 @@ public class ObjectDisplayControl : MonoBehaviour
 	void SetDisplayNone() {
 		int i = 0, j = 0;
 		for (i = 0;i < 2;i++) {
-			for (j = 0;j < 2;j++) {
+			for (j = 0;j < 3;j++) {
 				dispObj[i,j].SetActive(false);
 			}
 		}
@@ -169,13 +174,25 @@ public class ObjectDisplayControl : MonoBehaviour
 				audioSource.PlayOneShot(announceRight);
 			}
 		}
+		void AnnounceOpenOrClose(char state) {
+			if (state == 'O') {
+				Debug.Log("開");
+				audioSource.PlayOneShot(announceOpen);
+			}
+			if (state == 'C') {
+				Debug.Log("閉");
+				audioSource.PlayOneShot	(announceClose);
+			}
+		}
 		
 		void SetObjActive(char shape, char place) {
 			int n = 0,k = 0;	
 			if (shape == 'B') n = 0;
 			if (shape == 'S') n = 1;
-			if (place == 'L') k = 0;
-			if (place == 'R') k = 1;
+			
+			if (place == 'L') k = 0; //Left
+			if (place == 'R') k = 1; //Right
+			if (place == 'C') k = 2; //Center
 			dispObj[n,k].SetActive(true);
 		}
 		
@@ -210,6 +227,22 @@ public class ObjectDisplayControl : MonoBehaviour
 			case 8:
 				SetObjActive('S','L');SetObjActive('S','R');
 				break;
+				
+			case 300:
+				SetDisplayNone();
+				AnnounceOpenOrClose('O');
+				break;
+			case 303:
+				SetDisplayNone();
+				AnnounceOpenOrClose('C');
+				break;
+			case 301:
+				SetObjActive('B','C');
+				break;
+			case 302:
+				SetObjActive('S','C');
+				break;
+				
 			case 0:
 				SetDisplayNone();
 				break;
